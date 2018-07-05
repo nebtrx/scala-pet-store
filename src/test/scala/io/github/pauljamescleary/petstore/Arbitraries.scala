@@ -9,6 +9,7 @@ import io.github.pauljamescleary.petstore.domain.orders.OrderStatus._
 import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
 import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
+import io.github.pauljamescleary.petstore.domain.todos.Todo
 import io.github.pauljamescleary.petstore.domain.users._
 
 
@@ -64,6 +65,14 @@ trait PetStoreArbitraries {
       phone <- arbitrary[String]
       id <- Gen.option(Gen.posNum[Long])
     } yield User(userName, firstName, lastName, email, password, phone, id)
+  }
+
+  implicit val todo = Arbitrary[Todo] {
+    for {
+      description <- arbitrary[String]
+      completed <- arbitrary[Boolean]
+      id <- Gen.option(Gen.posNum[Long])
+    } yield Todo(description, completed, id)
   }
 }
 

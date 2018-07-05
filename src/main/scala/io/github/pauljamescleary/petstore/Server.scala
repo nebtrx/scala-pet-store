@@ -4,11 +4,12 @@ import config.{DatabaseConfig, PetStoreConfig}
 import domain.users._
 import domain.orders._
 import domain.pets._
-import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
+import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, TodoEndpoints, UserEndpoints}
+import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieTodoRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
+import io.github.pauljamescleary.petstore.domain.todos.TodoService
 import org.http4s.server.blaze.BlazeBuilder
 import tsec.mac.jca.HMACSHA256
 import tsec.passwordhashers.jca.BCrypt
@@ -31,16 +32,19 @@ object Server extends StreamApp[IO] {
       petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
       orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
       userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
+      todoRepo       =  DoobieTodoRepositoryInterpreter[F](xa)
       petValidation  =  PetValidationInterpreter[F](petRepo)
       petService     =  PetService[F](petRepo, petValidation)
       userValidation =  UserValidationInterpreter[F](userRepo)
       orderService   =  OrderService[F](orderRepo)
+      todoService    =  TodoService[F](todoRepo)
       userService    =  UserService[F](userRepo, userValidation)
       exitCode       <- BlazeBuilder[F]
         .bindHttp(8080, "localhost")
         .mountService(PetEndpoints.endpoints[F](petService), "/")
         .mountService(OrderEndpoints.endpoints[F](orderService), "/")
         .mountService(UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[F]), "/")
+        .mountService(TodoEndpoints.endpoints[F](todoService), "/")
         .serve
     } yield exitCode
 }
