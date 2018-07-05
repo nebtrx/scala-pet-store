@@ -12,13 +12,13 @@ class TodoQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
   import TodoSQL._
 
   test("Typecheck todo queries") {
-    check(delete(1L))
-    check(select(1L))
-    check(selectAll)
-
     todo.arbitrary.sample.foreach{ p =>
       check(insert(p))
       p.id.foreach(id => check(TodoSQL.update(p, id)))
     }
+
+    check(select(1L))
+    check(selectAll)
+    check(delete(1L))
   }
 }
