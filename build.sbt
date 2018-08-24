@@ -17,7 +17,6 @@ val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.4"
 val FlywayVersion          = "4.2.0"
 val PureConfigVersion      = "0.9.1"
-val TsecVersion            = "0.0.1-M11"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"            % CatsVersion,
@@ -42,15 +41,6 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
   "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
   "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test,
-
-  // Authentication dependencies
-  "io.github.jmcardon"    %% "tsec-common"          % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-password"        % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-mac"             % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-signatures"      % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-mac"         % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-sig"         % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-http4s"          % TsecVersion
 )
 
 

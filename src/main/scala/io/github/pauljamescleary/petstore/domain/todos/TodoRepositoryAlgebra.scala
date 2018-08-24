@@ -14,3 +14,4 @@ trait TodoRepositoryAlgebra[F[_]] {
 
   def delete(orderId: Long): F[Option[Todo]]
 }
+

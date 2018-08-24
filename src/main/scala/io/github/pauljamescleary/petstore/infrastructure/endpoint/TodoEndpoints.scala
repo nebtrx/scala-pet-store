@@ -4,7 +4,7 @@ import cats.effect.Effect
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.TodoNotFoundError
+import io.github.pauljamescleary.petstore.domain.{TodoDescriptionTooLongError, TodoNotFoundError}
 import io.github.pauljamescleary.petstore.domain.todos.{Todo, TodoService}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
@@ -22,25 +22,33 @@ class TodoEndpoints[F[_] : Effect] extends Http4sDsl[F] {
   private def createEndpoint(todoService: TodoService[F]): HttpService[F] =
     HttpService[F] {
       case req@POST -> Root / "todos" =>
-        for {
+        val computation = for {
           user <- req.as[Todo]
-          saved <- todoService.create(user)
-          resp <- Ok(saved.asJson)
-        } yield resp
+          result <- todoService.create(user).value
+        } yield result
+
+        computation.flatMap {
+          case Right(saved) => Ok(saved.asJson)
+          case Left(TodoDescriptionTooLongError) => BadRequest("The todo was too long")
+          case Left(TodoNotFoundError) => NotFound("The todo was not found")
+          case Left(_) => BadGateway("Unknown Error")
+        }
     }
 
   private def updateEndpoint(todoService: TodoService[F]): HttpService[F] =
     HttpService[F] {
       case req@PUT -> Root / "todos" / LongVar(id) =>
-        val action = for {
+        val computation = for {
           pet <- req.as[Todo]
           updated = pet.copy(id = Some(id))
           result <- todoService.update(pet).value
         } yield result
 
-        action.flatMap {
+        computation.flatMap {
           case Right(saved) => Ok(saved.asJson)
+          case Left(TodoDescriptionTooLongError) => BadRequest("The todo was too long")
           case Left(TodoNotFoundError) => NotFound("The todo was not found")
+          case Left(_) => BadGateway("Unknown Error")
         }
     }
 
